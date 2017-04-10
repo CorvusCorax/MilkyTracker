@@ -1571,7 +1571,7 @@ void SampleEditor::tool_PHPasteSample(const FilterParameters* par)
 	{
 		float f;
 		float fi = getFloatSampleFromWaveform(i);
-		for (pp_int32 oversample = 0; oversample<0x80; oversample++)
+//		for (pp_int32 oversample = 0; oversample<0x80; oversample++)
 		{
 			float frac = j - (float)floor(j);
 
@@ -1582,11 +1582,14 @@ void SampleEditor::tool_PHPasteSample(const FilterParameters* par)
 
 			f = (1.0f-frac)*f1 + frac*f2;
 
-			step = powf(16.0f,fabsf(fi));
-			if (f*fi<0.0f) {
-				step = 1.0f / (1.0f + (1.0f-(1.0f/step))) ;
-			}
-			j+=step*(1.0f/0x80);
+			float p = powf(1e12f,fi);
+			if (fabsf(p-1.0f)<1e-3f) p=1.0f+1e-3f; // avoid 1**1
+			f = -1.0f + 2.0f * (pow(p,(f+1.0f)/2.0f)-1.0f) / (p - 1.0f);
+			//step = powf(16.0f,fabsf(fi));
+			//if (f*fi<0.0f) {
+			//	step = 1.0f / (1.0f + (1.0f-(1.0f/step))) ;
+			//}
+			j+=1.;//step*(1.0f/0x80);
 		}
 		while (j>clipBoard->getWidth()) j-=clipBoard->getWidth();
 		setFloatSampleInWaveform(i, f);
